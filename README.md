@@ -1,6 +1,7 @@
 # llmux
+> LLM proxy that routes requests across Groq, Together, Cerebras, SambaNova, OpenRouter with automatic fallbacks.
 
-LLM proxy that routes requests across Groq, Together, Cerebras, SambaNova, OpenRouter with automatic fallbacks.
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/0b6311dc-5979-46a3-8ac1-696caa13476b" />
 
 ## Setup
 
