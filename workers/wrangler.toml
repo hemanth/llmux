@@ -1,0 +1,47 @@
+name = "llmux"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# Uncomment to use a custom domain
+# routes = [
+#   { pattern = "llmux.yourdomain.com", custom_domain = true }
+# ]
+
+# KV namespace for caching
+# Create with: wrangler kv:namespace create CACHE
+[[kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_KV_NAMESPACE_ID"  # Replace after running: wrangler kv:namespace create CACHE
+
+# Environment variables (non-secret)
+[vars]
+CACHE_TTL = "3600"
+DEFAULT_STRATEGY = "round-robin"
+FALLBACK_CHAIN = "groq,cerebras,together,sambanova,openrouter"
+
+# Development overrides
+[env.dev]
+name = "llmux-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_DEV_KV_NAMESPACE_ID"  # Replace after running: wrangler kv:namespace create CACHE --preview
+
+# Production settings
+[env.production]
+name = "llmux"
+
+# Secrets (set via wrangler secret put):
+#
+# Option 1: Single API key
+# - LLMUX_API_KEY
+#
+# Option 2: Multiple API keys (JSON format)
+# - LLMUX_API_KEYS  (e.g., '{"alice":"sk-xxx","bob":"sk-yyy"}')
+#
+# Provider keys:
+# - GROQ_API_KEY
+# - TOGETHER_API_KEY
+# - CEREBRAS_API_KEY
+# - SAMBANOVA_API_KEY
+# - OPENROUTER_API_KEY

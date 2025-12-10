@@ -1,0 +1,47 @@
+{
+  "name": "llmux",
+  "version": "0.1.0",
+  "description": "Unified LLM inference proxy with multi-provider routing, fallbacks, and caching",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "llm",
+    "proxy",
+    "groq",
+    "together",
+    "openrouter",
+    "cerebras",
+    "sambanova",
+    "inference"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^5.1.0",
+    "yaml": "^2.6.1",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0",
+    "lru-cache": "^11.0.2",
+    "ioredis": "^5.4.1",
+    "undici": "^7.1.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

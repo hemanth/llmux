@@ -1,0 +1,131 @@
+# llmux configuration
+# Environment variables can be interpolated with ${VAR_NAME}
+
+server:
+  port: 3000
+  host: "0.0.0.0"
+
+# Authentication - choose one method:
+
+# Option 1: Single API key (simple)
+# auth:
+#   api_key: ${LLMUX_API_KEY}
+
+# Option 2: Multiple API keys with labels (recommended)
+auth:
+  api_keys:
+    alice: ${LLMUX_KEY_ALICE}
+    bob: ${LLMUX_KEY_BOB}
+    ci-pipeline: ${LLMUX_KEY_CI}
+    # Add more keys as needed
+
+# LLM Provider configurations
+providers:
+  groq:
+    enabled: true
+    api_key: ${GROQ_API_KEY}
+    base_url: https://api.groq.com/openai/v1
+    models:
+      - llama-3.1-70b-versatile
+      - llama-3.1-8b-instant
+      - mixtral-8x7b-32768
+      - gemma2-9b-it
+    timeout: 30000
+    max_retries: 2
+
+  together:
+    enabled: true
+    api_key: ${TOGETHER_API_KEY}
+    base_url: https://api.together.xyz/v1
+    models:
+      - meta-llama/Llama-3.1-70B-Instruct-Turbo
+      - meta-llama/Llama-3.1-8B-Instruct-Turbo
+      - mistralai/Mixtral-8x7B-Instruct-v0.1
+    timeout: 60000
+    max_retries: 2
+
+  cerebras:
+    enabled: true
+    api_key: ${CEREBRAS_API_KEY}
+    base_url: https://api.cerebras.ai/v1
+    models:
+      - llama3.1-70b
+      - llama3.1-8b
+    timeout: 30000
+    max_retries: 2
+
+  sambanova:
+    enabled: true
+    api_key: ${SAMBANOVA_API_KEY}
+    base_url: https://api.sambanova.ai/v1
+    models:
+      - Meta-Llama-3.1-70B-Instruct
+      - Meta-Llama-3.1-8B-Instruct
+    timeout: 30000
+    max_retries: 2
+
+  openrouter:
+    enabled: true
+    api_key: ${OPENROUTER_API_KEY}
+    base_url: https://openrouter.ai/api/v1
+    models:
+      - meta-llama/llama-3.1-70b-instruct
+      - anthropic/claude-3.5-sonnet
+      - openai/gpt-4o
+    timeout: 60000
+    max_retries: 2
+    # OpenRouter-specific headers
+    extra_headers:
+      HTTP-Referer: ${APP_URL:-http://localhost:3000}
+      X-Title: llmux
+
+# Routing configuration
+routing:
+  # Default strategy: round-robin, random, first-available, latency
+  default_strategy: round-robin
+
+  # Fallback chain - order matters
+  fallback_chain:
+    - groq
+    - cerebras
+    - together
+    - sambanova
+    - openrouter
+
+  # Model aliases - map friendly names to provider-specific models
+  model_aliases:
+    llama-70b:
+      groq: llama-3.1-70b-versatile
+      together: meta-llama/Llama-3.1-70B-Instruct-Turbo
+      cerebras: llama3.1-70b
+      sambanova: Meta-Llama-3.1-70B-Instruct
+      openrouter: meta-llama/llama-3.1-70b-instruct
+
+    llama-8b:
+      groq: llama-3.1-8b-instant
+      together: meta-llama/Llama-3.1-8B-Instruct-Turbo
+      cerebras: llama3.1-8b
+      sambanova: Meta-Llama-3.1-8B-Instruct
+      openrouter: meta-llama/llama-3.1-8b-instruct
+
+# Caching configuration
+cache:
+  enabled: true
+  # Backend: memory, redis
+  backend: memory
+
+  # Memory cache settings
+  memory:
+    max_items: 1000
+    ttl: 3600  # seconds
+
+  # Redis settings (used when backend: redis)
+  redis:
+    url: ${REDIS_URL:-redis://localhost:6379}
+    ttl: 3600
+    key_prefix: "llmux:"
+
+# Logging
+logging:
+  level: info  # debug, info, warn, error
+  pretty: true  # pretty print in development
