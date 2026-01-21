@@ -11,7 +11,7 @@ compatibility_date = "2024-12-01"
 # Create with: wrangler kv:namespace create CACHE
 [[kv_namespaces]]
 binding = "CACHE"
-id = "YOUR_KV_NAMESPACE_ID"  # Replace after running: wrangler kv:namespace create CACHE
+id = "5c533eac92db421d84805b3fd1e24ce1"
 
 # Environment variables (non-secret)
 [vars]

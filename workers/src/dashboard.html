@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llmux - LLM Routing Proxy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --text-primary: #ffffff;
+            --text-secondary: #8888a0;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --border-color: #2a2a3a;
+            --gradient-1: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            -webkit-text-fill-color: white;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 24px;
+            font-size: 0.875rem;
+            color: var(--accent-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Main Layout */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Providers Section */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .providers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .provider-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .provider-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .provider-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .provider-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .provider-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .provider-status.online {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .provider-status.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .provider-models {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .model-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Playground Section */
+        .playground {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .playground-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .api-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .api-tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .api-tab.active {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: white;
+        }
+
+        .api-tab:hover:not(.active) {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            gap: 1rem;
+        }
+
+        textarea,
+        select,
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus,
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Response Area */
+        .response-area {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-height: 150px;
+            font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .response-area.empty {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .response-area.error {
+            color: var(--accent-red);
+        }
+
+        .response-area.streaming {
+            border-color: var(--accent-purple);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                llmux
+            </div>
+            <div class="status-badge" id="status-badge">
+                <div class="status-dot"></div>
+                <span id="status-text">Checking...</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Multi-Provider LLM Proxy</h1>
+            <p>Route requests across Groq, Together, Cerebras, SambaNova & OpenRouter with automatic fallbacks and
+                caching.</p>
+        </section>
+
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="provider-count">-</div>
+                <div class="stat-label">Active Providers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="model-count">-</div>
+                <div class="stat-label">Available Models</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="cache-status">-</div>
+                <div class="stat-label">Cache Status</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="runtime">-</div>
+                <div class="stat-label">Runtime</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🔌 Providers</h2>
+        <div class="providers-grid" id="providers-grid">
+            <div class="provider-card">
+                <div class="provider-header">
+                    <div class="provider-name">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🧪 Playground</h2>
+        <section class="playground">
+            <div class="playground-header">
+                <div class="api-selector">
+                    <button class="api-tab active" data-api="chat">Chat Completions</button>
+                    <button class="api-tab" data-api="responses">OpenResponses</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="prompt">Prompt</label>
+                <textarea id="prompt"
+                    placeholder="Enter your message...">Hello! What models are you connected to?</textarea>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="model">Model</label>
+                    <select id="model">
+                        <option value="llama-70b">llama-70b</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="stream">Streaming</label>
+                    <select id="stream">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="send-btn" id="send-btn" onclick="sendRequest()">
+                Send Request
+            </button>
+
+            <div class="response-area empty" id="response">Response will appear here...</div>
+        </section>
+    </main>
+
+    <footer>
+        Built with ❤️ | <a href="https://github.com/hemanth/llmux" target="_blank">View on GitHub</a> |
+        <a href="https://www.openresponses.org/specification" target="_blank">OpenResponses Spec</a>
+    </footer>
+
+    <script>
+        let currentApi = 'chat';
+
+        // API tab switching
+        document.querySelectorAll('.api-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.api-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentApi = tab.dataset.api;
+            });
+        });
+
+        // Fetch health and providers on load
+        async function init() {
+            try {
+                // Health check
+                const healthRes = await fetch('/health');
+                const health = await healthRes.json();
+
+                document.getElementById('status-text').textContent = 'Online';
+                document.getElementById('runtime').textContent = health.runtime?.replace('cloudflare-', '') || 'Workers';
+                document.getElementById('cache-status').textContent = 'Active';
+
+                // Providers
+                const providersRes = await fetch('/health/providers');
+                const providersData = await providersRes.json();
+
+                const providers = providersData.providers || [];
+                document.getElementById('provider-count').textContent = providers.length;
+
+                // Count models
+                const modelCount = providers.reduce((acc, p) => acc + (p.models?.length || 0), 0);
+                document.getElementById('model-count').textContent = modelCount;
+
+                // Render providers
+                const grid = document.getElementById('providers-grid');
+                if (providers.length > 0) {
+                    grid.innerHTML = providers.map(p => `
+            <div class="provider-card">
+              <div class="provider-header">
+                <div class="provider-name">
+                  ${getProviderIcon(p.name)} ${p.name}
+                </div>
+                <span class="provider-status online">Online</span>
+              </div>
+              <div class="provider-models">
+                ${(p.models || []).slice(0, 5).map(m => `<span class="model-tag">${m}</span>`).join('')}
+                ${(p.models?.length || 0) > 5 ? `<span class="model-tag">+${p.models.length - 5} more</span>` : ''}
+              </div>
+            </div>
+          `).join('');
+                }
+
+                // Populate model dropdown
+                const modelSelect = document.getElementById('model');
+                const allModels = providers.flatMap(p => p.models || []);
+                if (allModels.length > 0) {
+                    modelSelect.innerHTML = allModels.map(m => `<option value="${m}">${m}</option>`).join('');
+                }
+
+            } catch (error) {
+                document.getElementById('status-text').textContent = 'Offline';
+                document.querySelector('.status-badge').style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                document.querySelector('.status-badge').style.background = 'rgba(239, 68, 68, 0.1)';
+                document.querySelector('.status-badge').style.color = '#ef4444';
+                document.querySelector('.status-dot').style.background = '#ef4444';
+            }
+        }
+
+        function getProviderIcon(name) {
+            const icons = {
+                groq: '🚀',
+                together: '🤝',
+                cerebras: '🧠',
+                sambanova: '⚡',
+                openrouter: '🔀'
+            };
+            return icons[name.toLowerCase()] || '🔌';
+        }
+
+        async function sendRequest() {
+            const btn = document.getElementById('send-btn');
+            const responseEl = document.getElementById('response');
+            const prompt = document.getElementById('prompt').value;
+            const model = document.getElementById('model').value;
+            const stream = document.getElementById('stream').value === 'true';
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Sending...';
+            responseEl.className = 'response-area';
+            responseEl.textContent = '';
+
+            try {
+                if (currentApi === 'chat') {
+                    await sendChatRequest(prompt, model, stream, responseEl);
+                } else {
+                    await sendResponsesRequest(prompt, model, stream, responseEl);
+                }
+            } catch (error) {
+                responseEl.className = 'response-area error';
+                responseEl.textContent = `Error: ${error.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Request';
+            }
+        }
+
+        async function sendChatRequest(prompt, model, stream, responseEl) {
+            const body = {
+                model,
+                messages: [{ role: 'user', content: prompt }],
+                stream
+            };
+
+            const res = await fetch('/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error?.message || 'Request failed');
+            }
+
+            if (stream) {
+                responseEl.classList.add('streaming');
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+                            try {
+                                const json = JSON.parse(data);
+                                const content = json.choices?.[0]?.delta?.content;
+                                if (content) responseEl.textContent += content;
+                            } catch { }
+                        }
+                    }
+                }
+                responseEl.classList.remove('streaming');
+            } else {
+                const data = await res.json();
+                responseEl.textContent = JSON.stringify(data, null, 2);
+            }
+        }
+
+        async function sendResponsesRequest(prompt, model, stream, responseEl) {
+            const body = {
+                model,
+                input: prompt,
+                stream
+            };
+
+            const res = await fetch('/v1/responses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error?.message || 'Request failed');
+            }
+
+            if (stream) {
+                responseEl.classList.add('streaming');
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+                            try {
+                                const json = JSON.parse(data);
+                                if (json.type === 'response.output_text.delta') {
+                                    responseEl.textContent += json.delta;
+                                }
+                            } catch { }
+                        }
+                    }
+                }
+                responseEl.classList.remove('streaming');
+            } else {
+                const data = await res.json();
+                responseEl.textContent = JSON.stringify(data, null, 2);
+            }
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+
+</html>
