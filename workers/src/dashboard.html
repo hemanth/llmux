@@ -495,16 +495,34 @@
               <div class="provider-status">Connected</div>
             </div>
           `).join('');
-                }
 
-                const modelSelect = document.getElementById('model');
-                const allModels = providers.flatMap(p => p.models || []);
-                if (allModels.length > 0) {
-                    modelSelect.innerHTML = allModels.map(m => `<option value="${m}">${m}</option>`).join('');
+                    const modelSelect = document.getElementById('model');
+                    const allModels = providers.flatMap(p => p.models || []);
+                    if (allModels.length > 0) {
+                        modelSelect.innerHTML = allModels.map(m => `<option value="${m}">${m}</option>`).join('');
+                    }
+                } else {
+                    providersEl.innerHTML = `
+            <div class="provider">
+              <div>
+                <div class="provider-name" style="color: var(--gray-500);">No providers configured</div>
+                <div class="provider-models">
+                  <span class="model-tag">Run: wrangler secret put GROQ_API_KEY</span>
+                </div>
+              </div>
+            </div>
+          `;
                 }
             } catch (e) {
                 document.getElementById('status-text').textContent = 'Offline';
                 document.getElementById('status-dot').classList.add('offline');
+                document.getElementById('providers').innerHTML = `
+          <div class="provider">
+            <div>
+              <div class="provider-name" style="color: var(--gray-500);">Unable to connect</div>
+            </div>
+          </div>
+        `;
             }
         }
 
