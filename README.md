@@ -3,8 +3,6 @@
 
 <img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/2fb095d9-f37b-4512-a928-7ad2a348b3b7" />
 
-
-
 ## Setup
 
 ```bash
@@ -16,6 +14,8 @@ npm run dev
 ```
 
 ## Usage
+
+### OpenAI Chat Completions API
 
 ```bash
 curl http://localhost:3000/v1/chat/completions \
@@ -30,6 +30,35 @@ Works with any OpenAI SDK:
 from openai import OpenAI
 client = OpenAI(base_url="http://localhost:3000/v1", api_key="your-key")
 client.chat.completions.create(model="llama-70b", messages=[...])
+```
+
+### OpenResponses API
+
+llmux implements the [OpenResponses specification](https://www.openresponses.org/specification) for multi-provider, interoperable LLM interfaces.
+
+```bash
+curl http://localhost:3000/v1/responses \
+  -H "Authorization: Bearer $LLMUX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama-70b",
+    "input": [{"type": "message", "role": "user", "content": "Hi"}]
+  }'
+```
+
+**Features:**
+- Items-based request/response format (`message`, `function_call`)
+- Semantic streaming events (`response.output_text.delta`, etc.)
+- Conversation continuation with `previous_response_id`
+- Tool support with `tool_choice`
+
+**Streaming:**
+
+```bash
+curl http://localhost:3000/v1/responses \
+  -H "Authorization: Bearer $LLMUX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama-70b", "input": "Hi", "stream": true}'
 ```
 
 ## Config highlights

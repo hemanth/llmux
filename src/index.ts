@@ -5,8 +5,10 @@ import { createLogger } from './utils/logger.js';
 import { ProviderRegistry } from './providers/index.js';
 import { Router } from './router.js';
 import { CacheManager } from './cache/index.js';
+import { ResponseStore } from './response-store.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { chatRoutes } from './routes/chat.js';
+import { responsesRoutes } from './routes/responses.js';
 import { healthRoutes } from './routes/health.js';
 
 async function main(): Promise<void> {
@@ -32,6 +34,9 @@ async function main(): Promise<void> {
   // Initialize cache
   const cache = new CacheManager(config.cache);
 
+  // Initialize response store for OpenResponses
+  const responseStore = new ResponseStore(1000, 3600000); // 1000 items, 1 hour TTL
+
   // Create Fastify server
   const fastify = Fastify({
     logger: false, // We use our own logger
@@ -45,6 +50,7 @@ async function main(): Promise<void> {
   // Register routes
   await fastify.register(healthRoutes, { registry });
   await fastify.register(chatRoutes, { router, cache });
+  await fastify.register(responsesRoutes, { router, cache, responseStore });
 
   // Error handler
   fastify.setErrorHandler((error: Error, _request, reply) => {
